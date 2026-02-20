@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount } from "solid-js";
+import { Component, createSignal, onMount, onCleanup } from "solid-js";
 import {
   GetNotes,
   ReadNote,
@@ -11,6 +11,7 @@ import {
 import Sidebar from "./components/Sidebar";
 import Editor, { saveCurrentNote } from "./components/Editor";
 import Toolbar from "./components/Toolbar";
+import HelpModal from "./components/HelpModal";
 
 export type Note = {
   filename: string;
@@ -26,6 +27,41 @@ const App: Component = () => {
   const [sidebarPinned, setSidebarPinned] = createSignal(false);
   const [theme, setTheme] = createSignal<"light" | "dark">("light");
   const [dataDir, setDataDir] = createSignal("");
+  const [showHelp, setShowHelp] = createSignal(false);
+
+  const handleKeyDown = async (e: KeyboardEvent) => {
+    // Ctrl+N - Nouvelle note
+    if (e.ctrlKey && e.key === "n") {
+      e.preventDefault();
+      await newNote();
+    }
+    // Ctrl+\ - Toggle sidebar
+    if (e.ctrlKey && e.key === "\/") {
+      e.preventDefault();
+      setSidebarOpen((o) => !o);
+    }
+    // Ctrl+Delete - Supprimer la note active
+    if (e.ctrlKey && e.key === "Delete") {
+      e.preventDefault();
+      const note = activeNote();
+      if (note && confirm(`Supprimer "${note.title}" ?`)) {
+        await deleteNote(note);
+      }
+    }
+    // F1 - Aide (on l'ajoutera après)
+    if (e.key === "F1") {
+      e.preventDefault();
+      setShowHelp((h) => !h);
+    }
+  };
+
+  onMount(() => {
+    window.addEventListener("keydown", handleKeyDown);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+  });
 
   onMount(async () => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
@@ -125,6 +161,7 @@ const App: Component = () => {
         onNewNote={newNote}
         onChooseDir={chooseDir}
         onToggleTheme={toggleTheme}
+        onHelp={() => setShowHelp((h) => !h)}
         theme={theme()}
         dataDir={dataDir()}
         activeNote={activeNote()}
@@ -151,6 +188,7 @@ const App: Component = () => {
           active={!!activeNote()}
         />
       </div>
+      <HelpModal open={showHelp()} onClose={() => setShowHelp(false)} />
     </div>
   );
 };

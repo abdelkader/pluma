@@ -1,8 +1,15 @@
-import { Component, onMount, onCleanup, createEffect } from "solid-js";
+import {
+  Component,
+  onMount,
+  onCleanup,
+  createEffect,
+  createSignal,
+} from "solid-js";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import LinkModal from "./LinkModal";
 
 type Props = {
   content: string;
@@ -23,6 +30,12 @@ export function saveCurrentNote() {
 const Editor: Component<Props> = (props) => {
   let editorEl: HTMLDivElement | undefined;
   let saveTimer: ReturnType<typeof setTimeout>;
+  const [showLinkModal, setShowLinkModal] = createSignal(false);
+  const [selectedText, setSelectedText] = createSignal("");
+  const [linkSelection, setLinkSelection] = createSignal<{
+    from: number;
+    to: number;
+  } | null>(null);
 
   onMount(() => {
     globalEditor = new TiptapEditor({
@@ -47,7 +60,6 @@ const Editor: Component<Props> = (props) => {
         handlePaste(view, event) {
           const items = event.clipboardData?.items;
           if (!items) return false;
-
           for (const item of Array.from(items)) {
             if (item.type.startsWith("image/")) {
               event.preventDefault();
@@ -56,7 +68,6 @@ const Editor: Component<Props> = (props) => {
               const reader = new FileReader();
               reader.onload = (e) => {
                 const base64 = e.target?.result as string;
-                // Supprime la sélection avant d'insérer l'image
                 globalEditor
                   ?.chain()
                   .focus()
@@ -68,7 +79,18 @@ const Editor: Component<Props> = (props) => {
               return true;
             }
           }
-          // Pour le texte, on laisse Tiptap gérer nativement
+          return false;
+        },
+        handleKeyDown(view, event) {
+          if (event.ctrlKey && event.key === "k") {
+            event.preventDefault();
+            const { from, to } = view.state.selection;
+            const text = view.state.doc.textBetween(from, to);
+            setSelectedText(text);
+            setLinkSelection({ from, to });
+            setShowLinkModal(true);
+            return true;
+          }
           return false;
         },
       },
@@ -94,6 +116,22 @@ const Editor: Component<Props> = (props) => {
     globalEditor?.destroy();
     globalEditor = undefined;
   });
+
+  const handleLinkConfirm = (text: string, url: string) => {
+    const sel = linkSelection();
+    if (!sel) return;
+    setTimeout(() => {
+      globalEditor
+        ?.chain()
+        .focus()
+        .setTextSelection(sel)
+        .deleteSelection()
+        .insertContent(
+          `<a href="${url}" target="_blank" rel="noopener noreferrer">${text || url}</a>`,
+        )
+        .run();
+    }, 50);
+  };
 
   return (
     <div class="flex-1 flex flex-col overflow-hidden bg-base-100">
@@ -123,6 +161,12 @@ const Editor: Component<Props> = (props) => {
           </div>
         </div>
       )}
+      <LinkModal
+        open={showLinkModal()}
+        selectedText={selectedText()}
+        onConfirm={handleLinkConfirm}
+        onClose={() => setShowLinkModal(false)}
+      />
     </div>
   );
 };
