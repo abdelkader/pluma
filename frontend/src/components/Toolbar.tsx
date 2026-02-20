@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import { Component, createSignal, createEffect } from "solid-js";
 import { Note } from "../App";
 
 type Props = {
@@ -7,12 +7,34 @@ type Props = {
   onChooseDir: () => void;
   onToggleTheme: () => void;
   onHelp: () => void;
+  onRenameNote: (note: Note, newTitle: string) => void;
   theme: "light" | "dark";
   dataDir: string;
   activeNote: Note | null;
 };
 
 const Toolbar: Component<Props> = (props) => {
+  const [editing, setEditing] = createSignal(false);
+  const [titleValue, setTitleValue] = createSignal("");
+
+  // Sync quand la note active change
+  createEffect(() => {
+    setTitleValue(props.activeNote?.title || "");
+    setEditing(false);
+  });
+
+  const confirmRename = () => {
+    setEditing(false);
+    const note = props.activeNote;
+    if (!note) return;
+    const newTitle = titleValue().trim();
+    if (newTitle && newTitle !== note.title) {
+      props.onRenameNote(note, newTitle);
+    } else {
+      setTitleValue(note.title);
+    }
+  };
+
   return (
     <div class="navbar bg-base-200 border-b border-base-300 px-3 min-h-12 shrink-0">
       {/* Gauche */}
@@ -20,7 +42,7 @@ const Toolbar: Component<Props> = (props) => {
         <button
           class="btn btn-ghost btn-sm btn-square"
           onClick={props.onToggleSidebar}
-          title="Ouvrir/fermer le panneau"
+          title="Ouvrir/fermer le panneau (Ctrl+/)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +63,7 @@ const Toolbar: Component<Props> = (props) => {
         <button
           class="btn btn-ghost btn-sm btn-square"
           onClick={props.onNewNote}
-          title="Nouvelle note"
+          title="Nouvelle note (Ctrl+N)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -60,13 +82,34 @@ const Toolbar: Component<Props> = (props) => {
         </button>
       </div>
 
-      {/* Centre - titre de la note active */}
-      <div class="flex-1 px-4">
-        <span class="text-sm font-medium opacity-70">
-          {props.activeNote
-            ? props.activeNote.title
-            : "Aucune note sélectionnée"}
-        </span>
+      {/* Centre - titre éditable */}
+      <div class="flex-1 px-4 flex justify-center">
+        {editing() ? (
+          <input
+            class="input input-ghost input-sm text-center font-medium w-full max-w-sm focus:outline-none"
+            value={titleValue()}
+            onInput={(e) => setTitleValue(e.currentTarget.value)}
+            onBlur={confirmRename}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") confirmRename();
+              if (e.key === "Escape") {
+                setTitleValue(props.activeNote?.title || "");
+                setEditing(false);
+              }
+            }}
+            autofocus
+          />
+        ) : (
+          <span
+            class="text-sm font-medium opacity-70 cursor-pointer hover:opacity-100 transition-opacity px-2 py-1 rounded hover:bg-base-300"
+            onClick={() => {
+              if (props.activeNote) setEditing(true);
+            }}
+            title={props.activeNote ? "Cliquer pour renommer" : ""}
+          >
+            {props.activeNote ? titleValue() : "Aucune note sélectionnée"}
+          </span>
+        )}
       </div>
 
       {/* Droite */}
@@ -91,6 +134,7 @@ const Toolbar: Component<Props> = (props) => {
             />
           </svg>
         </button>
+
         <button
           class="btn btn-ghost btn-sm btn-square"
           onClick={props.onHelp}
@@ -111,6 +155,7 @@ const Toolbar: Component<Props> = (props) => {
             />
           </svg>
         </button>
+
         <button
           class="btn btn-ghost btn-sm btn-square"
           onClick={props.onToggleTheme}

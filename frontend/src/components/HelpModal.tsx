@@ -10,7 +10,7 @@ const shortcuts = [
   { keys: ["Ctrl", "B"], description: "Gras" },
   { keys: ["Ctrl", "I"], description: "Italique" },
   { keys: ["Ctrl", "K"], description: "Insérer un lien" },
-  { keys: ["Ctrl", "\\"], description: "Ouvrir/fermer la sidebar" },
+  { keys: ["Ctrl", "\/"], description: "Ouvrir/fermer la sidebar" },
   { keys: ["Ctrl", "Delete"], description: "Supprimer la note active" },
   { keys: ["Ctrl", "Z"], description: "Annuler" },
   { keys: ["Ctrl", "Y"], description: "Rétablir" },

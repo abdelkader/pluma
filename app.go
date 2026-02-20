@@ -4,7 +4,9 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -15,8 +17,9 @@ type App struct {
 }
 
 type Note struct {
-	Filename string `json:"filename"`
-	Title    string `json:"title"`
+	Filename  string    `json:"filename"`
+	Title     string    `json:"title"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func NewApp() *App {
@@ -74,12 +77,22 @@ func (a *App) GetNotes() ([]Note, error) {
 	for _, entry := range entries {
 		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".html") {
 			title := strings.TrimSuffix(entry.Name(), ".html")
+			info, err := entry.Info()
+			var updatedAt time.Time
+			if err == nil {
+				updatedAt = info.ModTime()
+			}
 			notes = append(notes, Note{
-				Filename: entry.Name(),
-				Title:    title,
+				Filename:  entry.Name(),
+				Title:     title,
+				UpdatedAt: updatedAt,
 			})
 		}
 	}
+	sort.Slice(notes, func(i, j int) bool {
+		return notes[i].UpdatedAt.After(notes[j].UpdatedAt)
+	})
+
 	return notes, nil
 }
 

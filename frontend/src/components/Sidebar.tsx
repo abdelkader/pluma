@@ -27,7 +27,29 @@ const Sidebar: Component<Props> = (props) => {
     }
     setEditingNote(null);
   };
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
+    if (days === 0) {
+      return date.toLocaleTimeString("fr-CA", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else if (days === 1) {
+      return "Hier";
+    } else if (days < 7) {
+      return date.toLocaleDateString("fr-CA", { weekday: "long" });
+    } else {
+      return date.toLocaleDateString("fr-CA", {
+        day: "2-digit",
+        month: "short",
+      });
+    }
+  };
   return (
     <div
       class="flex flex-col bg-base-200 border-r border-base-300 shrink-0 transition-all duration-300 overflow-hidden"
@@ -109,9 +131,12 @@ const Sidebar: Component<Props> = (props) => {
                   autofocus
                 />
               ) : (
-                <span class="flex-1 text-sm truncate select-none">
-                  {note.title}
-                </span>
+                <div class="flex flex-col flex-1 min-w-0">
+                  <span class="text-sm truncate select-none">{note.title}</span>
+                  <span class="text-xs opacity-40 select-none">
+                    {formatDate(note.updatedAt)}
+                  </span>
+                </div>
               )}
 
               {/* Actions */}

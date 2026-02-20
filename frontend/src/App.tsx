@@ -16,6 +16,7 @@ import HelpModal from "./components/HelpModal";
 export type Note = {
   filename: string;
   title: string;
+  updatedAt: string;
 };
 
 const App: Component = () => {
@@ -162,6 +163,7 @@ const App: Component = () => {
         onChooseDir={chooseDir}
         onToggleTheme={toggleTheme}
         onHelp={() => setShowHelp((h) => !h)}
+        onRenameNote={renameNote}
         theme={theme()}
         dataDir={dataDir()}
         activeNote={activeNote()}
