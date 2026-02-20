@@ -2,6 +2,7 @@ import { Component, onMount, onCleanup, createEffect } from "solid-js";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 
 type Props = {
   content: string;
@@ -29,6 +30,16 @@ const Editor: Component<Props> = (props) => {
       extensions: [
         StarterKit,
         Image.configure({ inline: false, allowBase64: true }),
+        Link.configure({
+          openOnClick: true,
+          autolink: true,
+          linkOnPaste: true,
+          HTMLAttributes: {
+            class: "link link-primary",
+            rel: "noopener noreferrer",
+            target: "_blank",
+          },
+        }),
       ],
       content: props.content || "<p></p>",
       editorProps: {
@@ -36,6 +47,7 @@ const Editor: Component<Props> = (props) => {
         handlePaste(view, event) {
           const items = event.clipboardData?.items;
           if (!items) return false;
+
           for (const item of Array.from(items)) {
             if (item.type.startsWith("image/")) {
               event.preventDefault();
@@ -44,12 +56,19 @@ const Editor: Component<Props> = (props) => {
               const reader = new FileReader();
               reader.onload = (e) => {
                 const base64 = e.target?.result as string;
-                globalEditor?.chain().focus().setImage({ src: base64 }).run();
+                // Supprime la sélection avant d'insérer l'image
+                globalEditor
+                  ?.chain()
+                  .focus()
+                  .deleteSelection()
+                  .setImage({ src: base64 })
+                  .run();
               };
               reader.readAsDataURL(file);
               return true;
             }
           }
+          // Pour le texte, on laisse Tiptap gérer nativement
           return false;
         },
       },

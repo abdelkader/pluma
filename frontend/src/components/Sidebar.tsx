@@ -143,7 +143,9 @@ const Sidebar: Component<Props> = (props) => {
                   class="btn btn-ghost btn-xs btn-square text-error"
                   onClick={(e) => {
                     e.stopPropagation();
-                    props.onDelete(note);
+                    if (confirm(`Supprimer "${note.title}" ?`)) {
+                      props.onDelete(note);
+                    }
                   }}
                   title="Supprimer"
                 >

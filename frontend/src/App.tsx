@@ -57,7 +57,9 @@ const App: Component = () => {
     setActiveNote(note);
     setContent(c);
     setContentKey((k) => k + 1);
-    if (!sidebarPinned()) setSidebarOpen(false);
+    if (!sidebarPinned()) {
+      setSidebarOpen(false);
+    }
   };
 
   const newNote = async () => {
@@ -119,7 +121,7 @@ const App: Component = () => {
       class="flex flex-col h-screen bg-base-100 text-base-content"
     >
       <Toolbar
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen())}
+        onToggleSidebar={() => setSidebarOpen((o) => !o)}
         onNewNote={newNote}
         onChooseDir={chooseDir}
         onToggleTheme={toggleTheme}
@@ -136,7 +138,11 @@ const App: Component = () => {
           onSelect={selectNote}
           onDelete={deleteNote}
           onRename={renameNote}
-          onPin={() => setSidebarPinned(!sidebarPinned())}
+          onPin={() => {
+            const newPinned = !sidebarPinned();
+            setSidebarPinned(newPinned);
+            if (newPinned) setSidebarOpen(true);
+          }}
         />
         <Editor
           content={content()}
