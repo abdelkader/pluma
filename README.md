@@ -1,49 +1,120 @@
-<p align="left">
-<strong>English</strong> | 
-<a href="https://github.com/xijaja/wails-template-solid-ts/blob/main/README_ZH.md">中文</a></p>
-<h1 align="center">wails-template-solid-ts</h1>
+# 🌿 Pluma
 
-<p align="center">Wails template which includes: Vite, Solid, TypeScript out of the box</p>
+Une application de prise de notes légère et élégante, construite avec **Wails**, **SolidJS**, **Tiptap** et **DaisyUI**.
 
-## Use this template
+---
+
+## ✨ Fonctionnalités
+
+- 📁 Stockage des notes dans un dossier local de votre choix (fichiers `.html`)
+- 📝 Éditeur de texte riche avec **Tiptap**
+- 🖼️ Collage d'images directement dans l'éditeur (`Ctrl+V`)
+- 🔗 Insertion de liens cliquables (`Ctrl+K`)
+- 🌙 Thème clair / sombre
+- 📂 Sidebar dépliable et épingnable
+- ✏️ Renommage des notes directement dans la toolbar
+- 🗑️ Suppression avec confirmation
+- 🕐 Date de dernière modification affichée dans la sidebar
+- 📅 Notes triées de la plus récente à la plus ancienne
+- 💾 Sauvegarde automatique
+
+---
+
+## ⌨️ Raccourcis clavier
+
+| Raccourci     | Action                   |
+| ------------- | ------------------------ |
+| `Ctrl+N`      | Nouvelle note            |
+| `Ctrl+B`      | Gras                     |
+| `Ctrl+I`      | Italique                 |
+| `Ctrl+K`      | Insérer un lien          |
+| `Ctrl+/`      | Ouvrir/fermer la sidebar |
+| `Ctrl+Delete` | Supprimer la note active |
+| `Ctrl+Z`      | Annuler                  |
+| `Ctrl+Y`      | Rétablir                 |
+| `F1`          | Ouvrir/fermer l'aide     |
+
+---
+
+## 🛠️ Stack technique
+
+| Couche   | Technologie                                                                         |
+| -------- | ----------------------------------------------------------------------------------- |
+| Backend  | [Go](https://golang.org/) + [Wails v2](https://wails.io/)                           |
+| Frontend | [SolidJS](https://www.solidjs.com/) + [TypeScript](https://www.typescriptlang.org/) |
+| Éditeur  | [Tiptap](https://tiptap.dev/)                                                       |
+| CSS      | [Tailwind CSS v4](https://tailwindcss.com/) + [DaisyUI v5](https://daisyui.com/)    |
+| Build    | [Vite 7](https://vitejs.dev/)                                                       |
+
+---
+
+## 🚀 Démarrage
+
+### Prérequis
+
+- [Go 1.21+](https://golang.org/dl/)
+- [Node.js 18+](https://nodejs.org/)
+- [Wails CLI v2](https://wails.io/docs/gettingstarted/installation)
 
 ```bash
-wails init -n my-wails-solid -t https://github.com/xijaja/wails-template-solid-ts
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
 ```
 
-## Live Development
-
-Run `wails dev` in the project directory to start it.
-
-If you want to debug in the browser, please enter the `frontend` directory in another terminal, and then execute `npm run dev`, the front-end development server will run on http://localhost:34115.
-
-## Tailwindcss
-
-If you need to use tailwindcss and postcss, please enter the `frontend` directory,
-Then run the command:
+### Installation
 
 ```bash
-# isntall
-npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+# Cloner le projet
+git clone https://github.com/ton-user/pluma.git
+cd pluma
 
-# init tailwind.config.cjs and postcss.config.cjs
-npx tailwindcss init tailwind.config.cjs -p
+# Installer les dépendances frontend
+cd frontend
+npm install
+cd ..
 ```
 
-Create tailwind.css file and write:
+### Développement
 
-```css
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+```bash
+wails dev
 ```
 
-Finally, import in `frontend/src/index.tsx`:
+### Build de production
 
-```tsx
-import "./tailwind.css";
+```bash
+wails build
 ```
 
-## Building
+L'exécutable se trouve dans `build/bin/`.
 
-To build a redistributable, production mode package, use `wails build`.
+---
+
+## 📁 Structure du projet
+
+```
+pluma/
+├── app.go              # Backend Go — logique CRUD des notes
+├── main.go             # Point d'entrée Wails
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx               # Composant racine
+│   │   ├── components/
+│   │   │   ├── Toolbar.tsx       # Barre d'outils
+│   │   │   ├── Sidebar.tsx       # Liste des notes
+│   │   │   ├── Editor.tsx        # Éditeur Tiptap
+│   │   │   ├── LinkModal.tsx     # Modal insertion de lien
+│   │   │   └── HelpModal.tsx     # Modal raccourcis clavier
+│   │   └── index.css             # Styles globaux
+│   ├── package.json
+│   └── vite.config.ts
+└── wails.json
+```
+
+---
+
+## 📝 Notes
+
+- Les notes sont stockées sous forme de fichiers `.html` dans le dossier choisi par l'utilisateur.
+- Les images collées sont encodées en **base64** directement dans le fichier HTML.
+- Le dossier de stockage est mémorisé entre les sessions via `localStorage`.
+- Le thème (clair/sombre) est également mémorisé entre les sessions.
