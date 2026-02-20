@@ -4,6 +4,8 @@ Une application de prise de notes légère et élégante, construite avec **Wail
 
 ---
 
+![Pluma Screenshot](screenshot.png)
+
 ## ✨ Fonctionnalités
 
 - 📁 Stockage des notes dans un dossier local de votre choix (fichiers `.html`)
